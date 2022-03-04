@@ -21,6 +21,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import kr.co.soft.interceptor.TopMenuInterceptor;
 import kr.co.soft.mapper.TopMenuMapper;
+import kr.co.soft.mapper.UserMapper;
 import kr.co.soft.service.TopMenuService;
 
 @Configuration // <annotation-driven>과 같은
@@ -122,6 +123,18 @@ public class ServletAppContext implements WebMvcConfigurer {
 
 		return factoryBean;
 	}
+
+	@Bean
+	public MapperFactoryBean<UserMapper> getUsermapper(SqlSessionFactory factory) throws Exception {
+
+		MapperFactoryBean<UserMapper> factoryBean = new MapperFactoryBean<UserMapper>(UserMapper.class);
+
+		factoryBean.setSqlSessionFactory(factory);
+
+		return factoryBean;
+	}
+	
+	
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {

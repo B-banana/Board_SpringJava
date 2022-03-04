@@ -18,9 +18,21 @@ public class UserValidator implements Validator{
 		// TODO Auto-generated method stub
 		UserBean userBean = (UserBean)target;
 		
-		if(userBean.getUser_pw().equals(userBean.getUser_pw2()) == false ) {
-			errors.rejectValue("user_pw", "NotEquals");
-			errors.rejectValue("user_pw2", "NotEquals");
+		//UserBean의 객체중에서 유효성 검사를 할 객체만 사용하기 위한 name 추출
+		String beanname = errors.getObjectName();
+		// System.out.println(beanname);
+	
+		if (beanname.equals("joinUserBean")) {
+		
+			if(userBean.getUser_pw().equals(userBean.getUser_pw2()) == false) {
+				errors.rejectValue("user_pw", "NotEquals");
+				errors.rejectValue("user_pw2", "NotEquals");
+			}
+			
+			if(userBean.isUserIdExist() == false ) {
+				errors.rejectValue("user_id", "DontCheckUserIdExist");
+			}
+			
 		}
 		
 	}
