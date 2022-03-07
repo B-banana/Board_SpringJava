@@ -1,16 +1,12 @@
 package kr.co.soft.config;
 
-import javax.servlet.FilterRegistration;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRegistration;
+import javax.servlet.Filter;
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletRegistration.Dynamic;
 
-import org.springframework.web.WebApplicationInitializer;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
-import org.springframework.web.servlet.DispatcherServlet;
-
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
+/*
 public class SpringConfigClass implements WebApplicationInitializer {
 	
 	// 본래는 서버에 있는 web.xml의 초기분석 경로를 수행해야 하지만 개발자가 변경하여 초기 분석경로는 변경하기 위해
@@ -47,7 +43,7 @@ public class SpringConfigClass implements WebApplicationInitializer {
 	}
 
 }
-/*
+*/
 public class SpringConfigClass extends AbstractAnnotationConfigDispatcherServletInitializer {
 
 	//DispatcherServlet
@@ -78,6 +74,20 @@ public class SpringConfigClass extends AbstractAnnotationConfigDispatcherServlet
 		encodingFilter.setEncoding("UTF-8");
 		return new Filter[] { encodingFilter };
 	}
+	
+	//Multipart 정보 구현
+	@Override
+	protected void customizeRegistration(Dynamic registration) {
+		super.customizeRegistration(registration);
+		/*
+		 * null : 기억장소는 톰켓에서 제공해주는 기본 임시기억장소 사용하겠다는 코드 
+		 * 52428800 : 업로드 데이터 영역(1024*50)
+		 * 50MB 524288000 : 파일 데이터를 포함한 전체 용량 500MB 설정 
+		 * 0 : 파일 임계값 (데이터가 들어오면 자동으로 용량 저장)
+		 */	
+		MultipartConfigElement config1 = new MultipartConfigElement(null, 52428800, 524288000, 0);
+		registration.setMultipartConfig(config1);
+	}
 
 }
-	*/
+

@@ -16,6 +16,7 @@ public class HomeController {
 	public String home() {
 		/* System.err.println("home"); */
 		/* System.err.println(loginUserBean); */
+		/* System.out.println(request.getServletContext().getRealPath("/")); */
 		
 		return "redirect:/main";
 	}

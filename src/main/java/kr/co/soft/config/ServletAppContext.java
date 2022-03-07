@@ -1,5 +1,7 @@
 package kr.co.soft.config;
 
+import javax.annotation.Resource;
+
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -12,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -19,7 +22,9 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import kr.co.soft.beans.UserBean;
 import kr.co.soft.interceptor.TopMenuInterceptor;
+import kr.co.soft.mapper.BoardMapper;
 import kr.co.soft.mapper.TopMenuMapper;
 import kr.co.soft.mapper.UserMapper;
 import kr.co.soft.service.TopMenuService;
@@ -47,6 +52,9 @@ public class ServletAppContext implements WebMvcConfigurer {
 	@Autowired
 	private TopMenuService topMenuService;
 
+	@Resource(name = "loginUserBean")
+	private UserBean loginUserBean;
+	
 	// jsp의 파일이름 앞 뒤 생략
 	@Override
 	public void configureViewResolvers(ViewResolverRegistry registry) {
@@ -134,18 +142,35 @@ public class ServletAppContext implements WebMvcConfigurer {
 		return factoryBean;
 	}
 	
-	
+	@Bean
+	public MapperFactoryBean<BoardMapper> getBoardMapper(SqlSessionFactory factory) throws Exception {
 
+		MapperFactoryBean<BoardMapper> factoryBean = new MapperFactoryBean<BoardMapper>(BoardMapper.class);
+
+		factoryBean.setSqlSessionFactory(factory);
+
+		return factoryBean;
+	}
+	
+	//==================================================
+	
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		// TODO Auto-generated method stub
 		WebMvcConfigurer.super.addInterceptors(registry);
 
-		TopMenuInterceptor topMenuInterceptor = new TopMenuInterceptor(topMenuService);
+		TopMenuInterceptor topMenuInterceptor = new TopMenuInterceptor(topMenuService, loginUserBean);
 
 		InterceptorRegistration reg1 = registry.addInterceptor(topMenuInterceptor);
 
 		reg1.addPathPatterns("/**"); // 모든 요청 주소에 AOP 등록
 	}
+	
+	// 첨부파일의 내용이 등록되도록 StandardServletMultipartResolver를 등록
+	@Bean
+	public StandardServletMultipartResolver multipartResolver() {
+		return new StandardServletMultipartResolver();	//객체 생성하여 변환
+	}
+	
 
 }
