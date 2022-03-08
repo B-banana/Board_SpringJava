@@ -3,6 +3,6 @@
 <c:set var='root' value='${pageContext.request.contextPath }/'/>
 
 <script>
-	alert('삭제가 완료되었습니다.')
-	location.href = '${root}board/main'
+	alert('삭제 되었습니다.')
+	location.href = '${root}board/main?board_info_idx=${board_info_idx}'
 </script>

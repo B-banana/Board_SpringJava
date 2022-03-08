@@ -23,10 +23,13 @@ import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import kr.co.soft.beans.UserBean;
+import kr.co.soft.interceptor.CheckWriteInterceptor;
+import kr.co.soft.interceptor.CheckloginInterceptor;
 import kr.co.soft.interceptor.TopMenuInterceptor;
 import kr.co.soft.mapper.BoardMapper;
 import kr.co.soft.mapper.TopMenuMapper;
 import kr.co.soft.mapper.UserMapper;
+import kr.co.soft.service.BoardService;
 import kr.co.soft.service.TopMenuService;
 
 @Configuration // <annotation-driven>과 같은
@@ -52,9 +55,12 @@ public class ServletAppContext implements WebMvcConfigurer {
 	@Autowired
 	private TopMenuService topMenuService;
 
+	@Autowired
+	private BoardService boardService;
+
 	@Resource(name = "loginUserBean")
 	private UserBean loginUserBean;
-	
+
 	// jsp의 파일이름 앞 뒤 생략
 	@Override
 	public void configureViewResolvers(ViewResolverRegistry registry) {
@@ -70,13 +76,13 @@ public class ServletAppContext implements WebMvcConfigurer {
 		WebMvcConfigurer.super.addResourceHandlers(registry);
 		registry.addResourceHandler("/**").addResourceLocations("/resource/");
 	}
-	
+
 	// 메시지 등록
 	@Bean
 	public ReloadableResourceBundleMessageSource messageSource() {
 		ReloadableResourceBundleMessageSource res = new ReloadableResourceBundleMessageSource();
 
-		//res.setBasename("/WEB-INF/properties/error_message"); // 단일. 확장자 쓰지말것
+		// res.setBasename("/WEB-INF/properties/error_message"); // 단일. 확장자 쓰지말것
 
 		res.setBasenames("/WEB-INF/properties/error_message");
 		// 복수의 것. 쉼표로 처리
@@ -84,15 +90,13 @@ public class ServletAppContext implements WebMvcConfigurer {
 		return res;
 
 	}
-	
+
 	/* @PropertySource와 메시지 충돌 -> 분리하는 코드 */
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-		
+
 		return new PropertySourcesPlaceholderConfigurer();
 	}
-	
-	
 
 	// 데이터베이스 정속 데이터 정보 등록
 	@Bean
@@ -141,7 +145,7 @@ public class ServletAppContext implements WebMvcConfigurer {
 
 		return factoryBean;
 	}
-	
+
 	@Bean
 	public MapperFactoryBean<BoardMapper> getBoardMapper(SqlSessionFactory factory) throws Exception {
 
@@ -151,9 +155,9 @@ public class ServletAppContext implements WebMvcConfigurer {
 
 		return factoryBean;
 	}
-	
-	//==================================================
-	
+
+	// ==================================================
+
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		// TODO Auto-generated method stub
@@ -164,13 +168,29 @@ public class ServletAppContext implements WebMvcConfigurer {
 		InterceptorRegistration reg1 = registry.addInterceptor(topMenuInterceptor);
 
 		reg1.addPathPatterns("/**"); // 모든 요청 주소에 AOP 등록
+
+		// --------------------------------------------
+		
+		CheckloginInterceptor checkLoginInterceptor = new CheckloginInterceptor(loginUserBean);
+
+		InterceptorRegistration reg2 = registry.addInterceptor(checkLoginInterceptor);
+
+		reg2.addPathPatterns("/user/modify", "/user/logout", "/board/*");
+		reg2.excludePathPatterns("/board/main");
+
+		// -----------------------------------------------
+
+		CheckWriteInterceptor checkWriteInterceptor = new CheckWriteInterceptor(loginUserBean, boardService);
+
+		InterceptorRegistration reg3 = registry.addInterceptor(checkWriteInterceptor);
+
+		reg3.addPathPatterns("/board/modify", "/board/delete");
 	}
-	
+
 	// 첨부파일의 내용이 등록되도록 StandardServletMultipartResolver를 등록
 	@Bean
 	public StandardServletMultipartResolver multipartResolver() {
-		return new StandardServletMultipartResolver();	//객체 생성하여 변환
+		return new StandardServletMultipartResolver(); // 객체 생성하여 변환
 	}
-	
 
 }
