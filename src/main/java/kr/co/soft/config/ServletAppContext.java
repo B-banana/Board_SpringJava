@@ -27,6 +27,7 @@ import kr.co.soft.interceptor.CheckWriteInterceptor;
 import kr.co.soft.interceptor.CheckloginInterceptor;
 import kr.co.soft.interceptor.TopMenuInterceptor;
 import kr.co.soft.mapper.BoardMapper;
+import kr.co.soft.mapper.PayMapper;
 import kr.co.soft.mapper.TopMenuMapper;
 import kr.co.soft.mapper.UserMapper;
 import kr.co.soft.service.BoardService;
@@ -155,6 +156,17 @@ public class ServletAppContext implements WebMvcConfigurer {
 
 		return factoryBean;
 	}
+	
+	@Bean
+	public MapperFactoryBean<PayMapper> getPayMapper(SqlSessionFactory factory) throws Exception {
+
+		MapperFactoryBean<PayMapper> factoryBean = new MapperFactoryBean<PayMapper>(PayMapper.class);
+
+		factoryBean.setSqlSessionFactory(factory);
+
+		return factoryBean;
+	}
+	
 
 	// ==================================================
 

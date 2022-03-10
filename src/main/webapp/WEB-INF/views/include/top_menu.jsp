@@ -28,6 +28,9 @@
 						<a href="${root }user/modify" class="nav-link">정보수정</a>
 					</li>
 					<li class="nav-item">
+						<a href="${root }mypay" class="nav-link">결제</a>
+					</li>
+					<li class="nav-item">
 						<a href="${root }user/logout" class="nav-link">로그아웃</a>
 					</li>
 				</c:when>
